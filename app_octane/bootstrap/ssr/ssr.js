@@ -5484,9 +5484,13 @@ createServer(
       return pages[`./Pages/${name}.vue`];
     },
     setup({ App, props, plugin }) {
+      console.log(props);
       return createSSRApp({
         render: () => h(App, props)
-      }).use(ZiggyVue).use(plugin);
+      }).use(ZiggyVue, {
+        ...props.ziggy,
+        location: new URL(props.ziggy.location)
+      }).use(plugin);
     }
   })
 );

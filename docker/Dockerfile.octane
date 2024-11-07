@@ -27,27 +27,28 @@ RUN apt-get update && apt-get install -y \
 
 RUN docker-php-ext-install mysqli pdo pdo_mysql pdo_pgsql pgsql session xml
 
-# habilita instalação do Redis 
+# Instala o Node.js
+RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && \
+    apt-get install -y nodejs
+
+# Instala e habilitar o Redis
 RUN pecl install redis-${REDIS_LIB_VERSION} \
     && docker-php-ext-enable redis 
 
 RUN docker-php-ext-install zip iconv simplexml pcntl gd fileinfo
 
-### Instalar e Habilitar o Swoole
+### Instalar e habilitar o Swoole
 RUN pecl install swoole
 RUN docker-php-ext-enable swoole
 
 # Composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
-COPY ./docker/supervisord/supervisord.octane.conf /etc/supervisor/conf.d/supervisord.conf
-#COPY ./docker/supervisord/supervisord.conf /etc/supervisord.d
-
 ### Supervisor permite monitorar e controlar vários processos (LINUX)
 ### Bastante utilizado para manter processos em Daemon, ou seja, executando em segundo plano
+COPY ./docker/supervisord/supervisord.octane.conf /etc/supervisor/conf.d/supervisord.conf
 
 COPY ./docker/php/extra-php.ini "$PHP_INI_DIR/99_extra.ini"
-# COPY ./docker/php/extra-php-fpm.conf /etc/php8/php-fpm.d/www.conf
 
 WORKDIR $APP_DIR
 RUN cd $APP_DIR
@@ -57,13 +58,12 @@ COPY --chown=www-data:www-data ./app_octane .
 RUN rm -rf vendor
 RUN composer install --no-interaction
 
-### OCTANE
-#RUN composer require laravel/octane
-#RUN php artisan octane:install --server=swoole
-
 ### Comandos úteis para otimização da aplicação
 RUN php artisan clear-compiled
 RUN php artisan optimize
+
+RUN npm install
+RUN npm run build
 
 ### NGINX
 RUN apt-get install nginx -y

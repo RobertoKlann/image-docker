@@ -11,6 +11,7 @@ services:
       - "80:80"       # http
       - "443:443"     # https
       - "8000:8000"   # octane
+      - "13714:13714" #inertia_ssr
 
   mysql:
     image: mysql:8
