@@ -1,216 +1,3 @@
-<script setup>
-import { router, usePage } from '@inertiajs/vue3';
-import { ref } from 'vue'
-import { Plus } from '@element-plus/icons-vue'
-
-defineProps({
-    products: Array
-})
-
-const brands = usePage().props.brands;
-const categories = usePage().props.categories;
-
-
-// console.log(products);
-const isAddProduct = ref(false);
-const editMode = ref(false);
-const dialogVisible = ref(false)
-
-//upload mulitpel images
-const productImages = ref([])
-const dialogImageUrl = ref('')
-const handleFileChange = (file) => {
-    console.log(file)
-    productImages.value.push(file)
-}
-
-const handlePictureCardPreview = (file) => {
-    dialogImageUrl.value = file.url
-    dialogVisible.value = true
-}
-
-const handleRemove = (file) => {
-    console.log(file)
-}
-//prodct from data
-const id = ref('');
-const title = ref('')
-const price = ref('')
-const quantity = ref('')
-const description = ref('')
-const product_images = ref([])
-const published = ref('')
-const category_id = ref('')
-const brand_id = ref('')
-const inStock = ref('')
-//end
-
-const openEditModal = (product, index) => {
-
-    console.log(product, index);
-    //updatde data
-    id.value = product.id;
-    title.value = product.title;
-    price.value = product.price;
-    quantity.value = product.quantity;
-    description.value = product.description;
-    brand_id.value = product.brand_id;
-    category_id.value = product.category_id;
-    product_images.value = product.product_images;
-
-    editMode.value = true;
-    isAddProduct.value = false
-    dialogVisible.value = true
-
-}
-
-
-//open add modal 
-const openAddModal = () => {
-    isAddProduct.value = true
-    dialogVisible.value = true
-    editMode.value = false;
-
-}
-
-// add product method 
-const AddProduct = async () => {
-    const formData = new FormData();
-    formData.append('title', title.value);
-    formData.append('price', price.value);
-    formData.append('quantity', quantity.value);
-    formData.append('description', description.value);
-    formData.append('brand_id', brand_id.value);
-    formData.append('category_id', category_id.value);
-    // Append product images to the FormData
-    for (const image of productImages.value) {
-        formData.append('product_images[]', image.raw);
-    }
-
-    try {
-        await router.post('products/store', formData, {
-            onSuccess: page => {
-                Swal.fire({
-                    toast: true,
-                    icon: 'success',
-                    position: 'top-end',
-                    showConfirmButton: false,
-                    title: page.props.flash.success
-                })
-                dialogVisible.value = false;
-                resetFormData();
-            },
-        })
-    } catch (err) {
-        console.log(err)
-    }
-
-
-
-}
-
-//rest data after added
-const resetFormData = () => {
-    id.value = '';
-    title.value = '';
-    price.value = '';
-    quantity.value = '';
-    description.value = '';
-    productImages.value = [];
-    dialogImageUrl.value = ''
-};
-
-
-
-//delete sigal product image 
-
-const deleteImage = async (pimage, index) => {
-    try {
-        await router.delete('/admin/products/image/' + pimage.id, {
-            onSuccess: (page) => {
-                product_images.value.splice(index, 1);
-                Swal.fire({
-                    toast: true,
-                    icon: "success",
-                    position: "top-end",
-                    showConfirmButton: false,
-                    title: page.props.flash.success
-                });
-            }
-        })
-    } catch (err) {
-        console.log(err);
-    }
-}
-
-//update product method
-const updateProduct = async () => {
-    const formData = new FormData();
-    formData.append('title', title.value);
-    formData.append('price', price.value);
-    formData.append('quantity', quantity.value);
-    formData.append('description', description.value);
-    formData.append('category_id', category_id.value);
-    formData.append('brand_id', brand_id.value);
-    formData.append("_method", 'PUT');
-    // Append product images to the FormData
-    for (const image of productImages.value) {
-        formData.append('product_images[]', image.raw);
-    }
-
-    try {
-        await router.post('products/update/' + id.value, formData, {
-            onSuccess: (page) => {
-                dialogVisible.value = false;
-                resetFormData();
-                Swal.fire({
-                    toast: true,
-                    icon: "success",
-                    position: "top-end",
-                    showConfirmButton: false,
-                    title: page.props.flash.success
-                });
-            }
-        })
-    } catch (err) {
-        console.log(err)
-    }
-}
-
-//delete product method 
-const deleteProduct = (product, index) => {
-    Swal.fire({
-        title: 'Are you Sure',
-        text: "This actions cannot undo!",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#d33',
-        cancelButtonText: 'no',
-        confirmButtonText: 'yes, delete!'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            try {
-                router.delete('products/destory/' + product.id, {
-                    onSuccess: (page) => {
-                        this.delete(product, index);
-                        Swal.fire({
-                            toast: true,
-                            icon: "success",
-                            position: "top-end",
-                            showConfirmButton: false,
-                            title: page.props.flash.success
-                        });
-                    }
-                })
-            } catch (err) {
-                console.log(err)
-            }
-        }
-    })
-
-}
-</script>
 <template>
     <section class="  p-3 sm:p-5">
         <!-- dialog for adding product or editing product -->
@@ -293,7 +80,7 @@ const deleteProduct = (product, index) => {
                 <!-- list of images for selected product -->
                 <div class="flex flex-nowrap mb-8 ">
                     <div v-for="(pimage, index) in product_images" :key="pimage.id" class="relative w-32 h-32 ">
-                        <img class="w-24 h-20 rounded" :src="`/${pimage.image}`" alt="">
+                        <img class="w-24 h-20 rounded" :src="`/${pimage.image}`" :alt="pimage.id">
                         <span
                             class="absolute top-0 right-8 transform -translate-y-1/2 w-3.5 h-3.5 bg-red-400 border-2 border-white rounded-full">
                             <span @click="deleteImage(pimage, index)"
@@ -304,11 +91,7 @@ const deleteProduct = (product, index) => {
 
                 <!-- end -->
 
-
-
-
-                <button type="submit"
-                    class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center">Submit</button>
+                <button type="submit" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center">Submit</button>
             </form>
 
             <!-- end -->
@@ -572,3 +355,217 @@ const deleteProduct = (product, index) => {
         </div>
     </section>
 </template>
+
+<script setup>
+import { router, usePage } from '@inertiajs/vue3';
+import { ref } from 'vue'
+import { Plus } from '@element-plus/icons-vue'
+
+defineProps({
+    products: Array
+})
+
+const brands = usePage().props.brands;
+const categories = usePage().props.categories;
+
+
+// console.log(products);
+const isAddProduct = ref(false);
+const editMode = ref(false);
+const dialogVisible = ref(false)
+
+//upload mulitpel images
+const productImages = ref([])
+const dialogImageUrl = ref('')
+const handleFileChange = (file) => {
+    console.log(file)
+    productImages.value.push(file)
+}
+
+const handlePictureCardPreview = (file) => {
+    dialogImageUrl.value = file.url
+    dialogVisible.value = true
+}
+
+const handleRemove = (file) => {
+    console.log(file)
+}
+//prodct from data
+const id = ref('');
+const title = ref('')
+const price = ref('')
+const quantity = ref('')
+const description = ref('')
+const product_images = ref([])
+const published = ref('')
+const category_id = ref('')
+const brand_id = ref('')
+const inStock = ref('')
+//end
+
+const openEditModal = (product, index) => {
+
+    console.log(product, index);
+    //updatde data
+    id.value = product.id;
+    title.value = product.title;
+    price.value = product.price;
+    quantity.value = product.quantity;
+    description.value = product.description;
+    brand_id.value = product.brand_id;
+    category_id.value = product.category_id;
+    product_images.value = product.product_images;
+
+    editMode.value = true;
+    isAddProduct.value = false
+    dialogVisible.value = true
+
+}
+
+
+//open add modal 
+const openAddModal = () => {
+    isAddProduct.value = true
+    dialogVisible.value = true
+    editMode.value = false;
+
+}
+
+// add product method 
+const AddProduct = async () => {
+    const formData = new FormData();
+    formData.append('title', title.value);
+    formData.append('price', price.value);
+    formData.append('quantity', quantity.value);
+    formData.append('description', description.value);
+    formData.append('brand_id', brand_id.value);
+    formData.append('category_id', category_id.value);
+    // Append product images to the FormData
+    for (const image of productImages.value) {
+        formData.append('product_images[]', image.raw);
+    }
+
+    try {
+        await router.post('products/store', formData, {
+            onSuccess: page => {
+                Swal.fire({
+                    toast: true,
+                    icon: 'success',
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    title: page.props.flash.success
+                })
+                dialogVisible.value = false;
+                resetFormData();
+            },
+        })
+    } catch (err) {
+        console.log(err)
+    }
+
+
+
+}
+
+//rest data after added
+const resetFormData = () => {
+    id.value = '';
+    title.value = '';
+    price.value = '';
+    quantity.value = '';
+    description.value = '';
+    productImages.value = [];
+    dialogImageUrl.value = ''
+};
+
+
+
+//delete sigal product image 
+
+const deleteImage = async (pimage, index) => {
+    try {
+        await router.delete('/admin/products/image/' + pimage.id, {
+            onSuccess: (page) => {
+                product_images.value.splice(index, 1);
+                Swal.fire({
+                    toast: true,
+                    icon: "success",
+                    position: "top-end",
+                    showConfirmButton: false,
+                    title: page.props.flash.success
+                });
+            }
+        })
+    } catch (err) {
+        console.log(err);
+    }
+}
+
+//update product method
+const updateProduct = async () => {
+    const formData = new FormData();
+    formData.append('title', title.value);
+    formData.append('price', price.value);
+    formData.append('quantity', quantity.value);
+    formData.append('description', description.value);
+    formData.append('category_id', category_id.value);
+    formData.append('brand_id', brand_id.value);
+    formData.append("_method", 'PUT');
+    // Append product images to the FormData
+    for (const image of productImages.value) {
+        formData.append('product_images[]', image.raw);
+    }
+
+    try {
+        await router.post('products/update/' + id.value, formData, {
+            onSuccess: (page) => {
+                dialogVisible.value = false;
+                resetFormData();
+                Swal.fire({
+                    toast: true,
+                    icon: "success",
+                    position: "top-end",
+                    showConfirmButton: false,
+                    title: page.props.flash.success
+                });
+            }
+        })
+    } catch (err) {
+        console.log(err)
+    }
+}
+
+//delete product method 
+const deleteProduct = (product, index) => {
+    Swal.fire({
+        title: 'Are you Sure',
+        text: "This actions cannot undo!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        cancelButtonText: 'no',
+        confirmButtonText: 'yes, delete!'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            try {
+                router.delete('products/destory/' + product.id, {
+                    onSuccess: (page) => {
+                        this.delete(product, index);
+                        Swal.fire({
+                            toast: true,
+                            icon: "success",
+                            position: "top-end",
+                            showConfirmButton: false,
+                            title: page.props.flash.success
+                        });
+                    }
+                })
+            } catch (err) {
+                console.log(err)
+            }
+        }
+    })
+
+}
+</script>

@@ -5,6 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
         <title inertia>{{ config('app.name', 'Laravel AAAAA') }}</title>
+        <meta name="description" content="Testando tecnologia nova com Laravel Octane + Swoole + Vue + Inertia SSR">
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
