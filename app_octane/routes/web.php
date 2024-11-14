@@ -7,6 +7,8 @@ use Inertia\Inertia;
 
 
 use App\Http\Controllers\User\UserController;
+use App\Http\Controllers\User\AboutController;
+use App\Http\Controllers\User\ContactController;
 use App\Http\Controllers\User\ProductListController;
 use App\Http\Controllers\User\CartController;
 use App\Http\Controllers\User\CheckoutController;
@@ -43,6 +45,10 @@ use App\Http\Controllers\User\Admin\AdminAuthController;
 //user
 
 Route::get('/', [UserController::class, 'index'])->name('home');
+Route::get('/about', [AboutController::class, 'index'])->name('about');
+Route::get('/contact', [ContactController::class, 'index'])->name('contact');
+
+
 Route::get('/dashboard', [DashboardController::class, 'index'])->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {

@@ -15,7 +15,7 @@ class ProductListController extends Controller
     public function index()
     {
         $products = cache()->remember('products', 600, function () {
-            return ProductResource::collection(Product::with('category', 'brand', 'product_images')->filtered()->paginate(9)->withQueryString());
+            return ProductResource::collection(Product::with('category', 'brand', 'product_images')->filtered()->paginate(30)->withQueryString());
         });
 
         $categories = cache()->remember('categories', 600, function () {
@@ -32,7 +32,6 @@ class ProductListController extends Controller
                 'categories' => $categories,
                 'brands' => $brands,
                 'products' => $products
-                // 'products' => ProductResource::collection($filterProducts)
             ]
         );
     }

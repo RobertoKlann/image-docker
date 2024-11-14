@@ -12,12 +12,12 @@ class UserController extends Controller
 {
     public function index()
     {
-        // return view('welcome');
+        $products = cache()->remember('products_home', 600, function () {
+            return Product::with('brand', 'category', 'product_images')->orderBy('id','desc')->limit(200)->get();
+        });
 
-        $products = Product::with('brand', 'category', 'product_images')->orderBy('id','desc')->limit(8)->get();
-        
         return Inertia::render('User/Index', [
-            'products'=>$products,
+            'products'=> $products,
             'canLogin' => app('router')->has('login'),
             'canRegister' => app('router')->has('register'),
             'laravelVersion' => Application::VERSION,
