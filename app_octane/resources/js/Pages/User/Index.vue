@@ -4,7 +4,10 @@
 
         <div class="bg-white">
             <div class="mx-auto max-w-2xl px-4 py-16 sm:px-6 sm:py-24 lg:max-w-7xl lg:px-8">
-                <h2 class="text-2xl font-bold tracking-tight text-gray-900">List of products</h2>
+                <h2 class="text-2xl font-bold tracking-tight text-gray-900">Nossos Corretores</h2>
+                <Users :users="users"></Users>
+
+                <h2 class="text-2xl font-bold tracking-tight text-gray-900">Lista de Imóveis</h2>
 
                 <Products :products="products"></Products>
 
@@ -23,10 +26,12 @@
 import { Link, router } from '@inertiajs/vue3';
 import UserLayouts from './Layouts/UserLayouts.vue';
 import Hero from './Layouts/Hero.vue';
-import Products from '../User/Components/Products.vue'
+import Products from '../User/Components/Products.vue';
+import Users from '../User/Components/Users.vue';
 
 defineProps({
-    products: Array
+    products: Array,
+    users: Array,
 })
 
 </script>
